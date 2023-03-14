@@ -1,0 +1,51 @@
+{
+  "name": "react-tailwind-variants",
+  "version": "0.0.1",
+  "description": "React Stitches-like variants API for tailwindcss classes",
+  "private": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "vitest",
+    "test": "vitest run",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc",
+    "ci": "pnpm run lint && pnpm run test && pnpm run build",
+    "release": "pnpm run ci && changeset publish"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Salavat Salakhutdinov",
+    "email": "salahutdinov.salavat@gmail.com",
+    "url": "https://github.com/jackardios"
+  },
+  "keywords": [
+    "tailwind",
+    "tailwindcss",
+    "css",
+    "cva",
+    "classname",
+    "classname-variants",
+    "tailwind-variants",
+    "stitches.js",
+    "stitches",
+    "stitches-like",
+    "variants",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackardios/react-tailwind-variants.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jackardios/react-classname-variants/issues"
+  },
+  "homepage": "https://github.com/jackardios/react-classname-variants#readme",
+  "devDependencies": {
+    "@changesets/cli": "^2.26.0",
+    "tsup": "^6.6.3",
+    "typescript": "^4.9.5",
+    "vitest": "^0.29.2"
+  }
+}
