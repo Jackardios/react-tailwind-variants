@@ -12,7 +12,6 @@ import { twMerge } from 'tailwind-merge';
 type StringToBoolean<T> = T extends 'true' | 'false' ? boolean : T;
 
 type ClassNameValue = string | null | undefined | ClassNameValue[];
-type ClassNameProp = { className?: ClassNameValue };
 
 type CxOptions = ClassNameValue[];
 type CxReturn = string;
@@ -20,9 +19,6 @@ type CxReturn = string;
 const cx = <T extends CxOptions>(...classes: T): CxReturn =>
   // @ts-ignore
   twMerge(classes.flat(Infinity).filter(Boolean).join(' '));
-
-const falsyToString = <T extends unknown>(value: T) =>
-  typeof value === 'boolean' ? `${value}` : value === 0 ? '0' : value;
 
 /**
  * No-op function to mark template literals as tailwind strings.
@@ -62,9 +58,9 @@ export interface VariantsConfig<V extends VariantsSchema = {}> {
 /**
  * Rules for class names that are applied for certain variant combinations.
  */
-export interface CompoundVariant<V extends VariantsSchema> {
+interface CompoundVariant<V extends VariantsSchema> {
   variants: Partial<VariantsMulti<V>>;
-  className: string;
+  className: ClassNameValue;
 }
 
 type Variants<V extends VariantsSchema> = {
@@ -160,57 +156,46 @@ export type Simplify<T> = {
 export function variants<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = C['variants']
->(config: Partial<Simplify<C>>) {
-  return (props?: VariantOptions<C> & ClassNameProp) => {
-    if (config.variants == null) return cx(config.base, props?.className);
-    const { variants, defaultVariants } = config;
+>(config: Simplify<C>) {
+  const { base, variants, compoundVariants, defaultVariants } = config;
 
-    const variantClassNames = Object.keys(variants).map(
-      (variant: keyof typeof variants) => {
-        const variantProp = props?.[variant as keyof typeof props];
-        const defaultVariantProp = defaultVariants?.[variant];
-        const variantKey = (falsyToString(variantProp) ||
-          falsyToString(
-            defaultVariantProp
-          )) as keyof (typeof variants)[typeof variant];
-        return variants[variant][variantKey];
+  function isBooleanVariant(name: keyof V) {
+    const variant = variants?.[name];
+    return variant && ('false' in variant || 'true' in variant);
+  }
+
+  return function (props?: VariantOptions<C> & { className?: ClassNameValue }) {
+    const result = [base];
+
+    const getSelectedVariant = (name: keyof V) =>
+      (props as any)[name] ??
+      defaultVariants?.[name] ??
+      (isBooleanVariant(name) ? false : undefined);
+
+    for (let name in variants) {
+      const selected = getSelectedVariant(name);
+      if (selected !== undefined) result.push(variants[name]?.[selected]);
+    }
+
+    for (let { variants, className } of compoundVariants ?? []) {
+      function isSelectedVariant(name: string) {
+        const selected = getSelectedVariant(name);
+        const cvSelector = variants[name];
+
+        return Array.isArray(cvSelector)
+          ? cvSelector.includes(selected)
+          : selected === cvSelector;
       }
-    );
-    const defaultsAndProps = {
-      ...defaultVariants,
-      // remove `undefined` props
-      ...(props &&
-        Object.entries(props).reduce<typeof props>(
-          (acc, [key, value]) =>
-            typeof value === 'undefined' ? acc : { ...acc, [key]: value },
-          {} as typeof props
-        )),
-    };
-    const compoundVariantClassNames = config.compoundVariants?.reduce(
-      (acc, { className: cvClassName, variants }) =>
-        Object.entries(variants).every(([cvKey, cvSelector]) => {
-          const selector =
-            defaultsAndProps[cvKey as keyof typeof defaultsAndProps];
-          return Array.isArray(cvSelector)
-            ? cvSelector.includes(selector)
-            : selector === cvSelector;
-        })
-          ? [...acc, cvClassName]
-          : acc,
-      [] as ClassNameValue[]
-    );
-    return cx(
-      config.base,
-      variantClassNames,
-      compoundVariantClassNames,
-      props?.className
-    );
+
+      if (Object.keys(variants).every(isSelectedVariant)) {
+        result.push(className);
+      }
+    }
+
+    if (props?.className) {
+      result.push(props.className);
+    }
+
+    return cx(result);
   };
 }
-
-const a = variants({
-  defaultVariants: {
-    color: 'primary',
-    size: 'lgg',
-  },
-});

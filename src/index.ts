@@ -1,17 +1,15 @@
 export {
-  type CxOptions,
-  type CxReturn,
-  type Config,
+  type VariantsConfig,
   type VariantsSchema,
-  type Variants,
-  cx,
+  type VariantOptions,
   variants,
-} from './base';
+  tw,
+} from './variants';
 
 export {
-  type ConfigOf,
   type StyledComponent,
   type VariantPropsOf,
+  type VariantsConfigOf,
   createStyledPropsHandler,
   extractVariantsConfig,
   styled,

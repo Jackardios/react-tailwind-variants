@@ -1,5 +1,5 @@
 import {
-  type ComponentProps,
+  type ComponentPropsWithoutRef,
   type ComponentRef,
   type ElementType,
   type ForwardRefExoticComponent,
@@ -10,27 +10,28 @@ import {
 import { Slot } from '@radix-ui/react-slot';
 
 import {
-  type Config,
+  type VariantsConfig,
   type VariantsSchema,
-  type VariantsOf,
-  type Variants,
+  type VariantOptions,
   variants,
-} from './base';
+  Simplify,
+} from './variants';
 
 const StyledComponentConfigKey = '$$classnameVariantsConfig';
 
-type StyledComponentConfigProp<Config> = {
+type StyledComponentConfigProp<Config extends VariantsConfig> = {
   readonly [StyledComponentConfigKey]: Config;
 };
 
 export type StyledComponent<
   ForwardRefComponent extends ForwardRefExoticComponent<any>,
-  Config
+  Config extends VariantsConfig
 > = ForwardRefComponent & StyledComponentConfigProp<Config>;
 
-export function createStyledPropsHandler<V extends VariantsSchema>(
-  config: Config<V>
-) {
+export function createStyledPropsHandler<
+  C extends VariantsConfig<V>,
+  V extends VariantsSchema = C['variants']
+>(config: C) {
   const variantsHandler = variants(config);
 
   return function <P = {}>(props: P) {
@@ -54,20 +55,21 @@ export function createStyledPropsHandler<V extends VariantsSchema>(
   };
 }
 
-export function styled<T extends ElementType, V extends VariantsSchema>(
-  baseType: T,
-  config: string | Config<V>
-) {
+export function styled<
+  T extends ElementType,
+  C extends VariantsConfig<V>,
+  V extends VariantsSchema = C extends VariantsConfig ? C['variants'] : {}
+>(baseType: T, config: string | Simplify<C>) {
   const preparedConfig =
     typeof config === 'string'
-      ? ({ base: config, variants: {} } as Config<V>)
+      ? ({ base: config, variants: {} } as Simplify<C>)
       : config;
 
   const propsHandler = createStyledPropsHandler(preparedConfig);
 
-  type ConfigVariants = Variants<V>;
+  type ConfigVariants = VariantOptions<C>;
   type P = Omit<
-    ConfigVariants & Omit<ComponentProps<T>, keyof ConfigVariants>,
+    ConfigVariants & Omit<ComponentPropsWithoutRef<T>, keyof ConfigVariants>,
     'asChild'
   > & {
     asChild?: boolean;
@@ -89,23 +91,19 @@ export function styled<T extends ElementType, V extends VariantsSchema>(
   }) as StyledComponent<typeof component, typeof preparedConfig>;
 }
 
-export type ConfigOf<Component> = Component extends StyledComponent<
-  ForwardRefExoticComponent<any>,
-  infer Config
->
-  ? Config
-  : never;
+export type VariantsConfigOf<
+  Component extends StyledComponent<ForwardRefExoticComponent<any>, Config>,
+  Config extends VariantsConfig = Component[typeof StyledComponentConfigKey]
+> = Config;
 
-export type VariantPropsOf<Component> = VariantsOf<ConfigOf<Component>>;
+export type VariantPropsOf<
+  Component extends StyledComponent<ForwardRefExoticComponent<any>, Config>,
+  Config extends VariantsConfig = Component[typeof StyledComponentConfigKey]
+> = VariantOptions<Config>;
 
 export function extractVariantsConfig<
   Component extends ForwardRefExoticComponent<any>,
-  Config
+  Config extends VariantsConfig
 >(styledComponent: StyledComponent<Component, Config>) {
   return styledComponent[StyledComponentConfigKey];
 }
-
-/**
- * No-op function to mark template literals as tailwind strings.
- */
-export const tw = String.raw;
