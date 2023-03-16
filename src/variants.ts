@@ -3,31 +3,14 @@
  * See https://github.com/fgnass/classname-variants/
  */
 
-import { twMerge } from 'tailwind-merge';
-
-/** =======================================
- *  Utils
- *  ======================================= */
+import { cx } from './cx';
 
 type StringToBoolean<T> = T extends 'true' | 'false' ? boolean : T;
+type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
+}[keyof T];
 
-type ClassNameValue = string | null | undefined | ClassNameValue[];
-
-type CxOptions = ClassNameValue[];
-type CxReturn = string;
-
-const cx = <T extends CxOptions>(...classes: T): CxReturn =>
-  // @ts-ignore
-  twMerge(classes.flat(Infinity).filter(Boolean).join(' '));
-
-/**
- * No-op function to mark template literals as tailwind strings.
- */
-export const tw = String.raw;
-
-/** =======================================
- *  Variants
- *  ======================================= */
+export type ClassNameValue = string | null | undefined | ClassNameValue[];
 
 /**
  * Definition of the available variants and their options.
@@ -153,10 +136,24 @@ export type Simplify<T> = {
   [K in keyof T]: T[K];
 };
 
+type VariantsHandlerFn<P> = RequiredKeys<Simplify<P>> extends never
+  ? (props?: P) => string
+  : (props: P) => string;
+
 export function variants<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = C['variants']
->(config: Simplify<C>) {
+>(
+  config: Simplify<C>
+): VariantsHandlerFn<
+  VariantOptions<C> & {
+    className?: ClassNameValue;
+  }
+> {
+  if (!config || !config.variants) {
+    throw new Error('variants configuration must not be empty');
+  }
+
   const { base, variants, compoundVariants, defaultVariants } = config;
 
   function isBooleanVariant(name: keyof V) {
@@ -164,11 +161,11 @@ export function variants<
     return variant && ('false' in variant || 'true' in variant);
   }
 
-  return function (props?: VariantOptions<C> & { className?: ClassNameValue }) {
+  return function (props?: { className?: ClassNameValue }) {
     const result = [base];
 
     const getSelectedVariant = (name: keyof V) =>
-      (props as any)[name] ??
+      (props as any)?.[name] ??
       defaultVariants?.[name] ??
       (isBooleanVariant(name) ? false : undefined);
 

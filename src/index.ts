@@ -1,9 +1,10 @@
+export { type CxOptions, type CxReturn, cx } from './cx';
+
 export {
   type VariantsConfig,
   type VariantsSchema,
   type VariantOptions,
   variants,
-  tw,
 } from './variants';
 
 export {
@@ -14,3 +15,8 @@ export {
   extractVariantsConfig,
   styled,
 } from './react';
+
+/**
+ * No-op function to mark template literals as tailwind strings.
+ */
+export const tw = String.raw;
