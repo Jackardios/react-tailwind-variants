@@ -34,16 +34,16 @@ export function createStyledPropsHandler<
 >(config: C) {
   const variantsHandler = variants(config);
 
-  return function <P = {}>(props: P) {
+  return function <
+    P extends VariantOptions<C> & {
+      className?: string;
+    }
+  >(props: P) {
     const result: any = {};
 
     // Pass-through all unrelated props
     for (let prop in props) {
-      if (
-        prop !== 'className' ||
-        !config.variants ||
-        !(prop in config.variants)
-      ) {
+      if (!config.variants || !(prop in config.variants)) {
         result[prop] = props[prop];
       }
     }
