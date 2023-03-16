@@ -17,7 +17,7 @@ import {
   Simplify,
 } from './variants';
 
-const StyledComponentConfigKey = '$$classnameVariantsConfig';
+const StyledComponentConfigKey = '$$tailwindVariantsConfig';
 
 type StyledComponentConfigProp<Config extends VariantsConfig> = {
   readonly [StyledComponentConfigKey]: Config;
@@ -68,14 +68,14 @@ export function styled<
   const propsHandler = createStyledPropsHandler(preparedConfig);
 
   type ConfigVariants = VariantOptions<C>;
-  type P = Omit<
+  type Props = Omit<
     ConfigVariants & Omit<ComponentPropsWithoutRef<T>, keyof ConfigVariants>,
     'asChild'
   > & {
     asChild?: boolean;
   };
 
-  const component = forwardRef<ComponentRef<T>, P>(
+  const component = forwardRef<ComponentRef<T>, Props>(
     ({ asChild, ...props }, ref) => {
       const type = asChild ? Slot : baseType;
 
