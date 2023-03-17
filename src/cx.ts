@@ -1,8 +1,3 @@
-/**
- * This is a modified version of the `classname-variants`
- * See https://github.com/fgnass/classname-variants/
- */
-
 import { twMerge } from 'tailwind-merge';
 import { type ClassNameValue } from './variants';
 
