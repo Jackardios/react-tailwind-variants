@@ -28,7 +28,7 @@ export type StyledComponent<
   Config extends VariantsConfig
 > = ForwardRefComponent & StyledComponentConfigProp<Config>;
 
-export function createStyledPropsHandler<
+export function variantProps<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = C['variants']
 >(config: C) {
@@ -74,7 +74,7 @@ export function styled<
       ? ({ base: config, variants: {} } as Simplify<C>)
       : config;
 
-  const propsHandler = createStyledPropsHandler(preparedConfig);
+  const propsHandler = variantProps(preparedConfig);
 
   type ConfigVariants = VariantOptions<C>;
   type Props = SlottableProps<

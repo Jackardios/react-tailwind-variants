@@ -11,7 +11,7 @@ export {
   type StyledComponent,
   type VariantPropsOf,
   type VariantsConfigOf,
-  createStyledPropsHandler,
+  variantProps,
   extractVariantsConfig,
   styled,
 } from './react';

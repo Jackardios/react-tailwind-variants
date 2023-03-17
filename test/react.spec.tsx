@@ -1,11 +1,7 @@
 import React, { forwardRef } from 'react';
 import { describe, expect, it, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import {
-  createStyledPropsHandler,
-  extractVariantsConfig,
-  styled,
-} from '../src';
+import { variantProps, extractVariantsConfig, styled } from '../src';
 
 const StyledComponent = styled('button', {
   base: 'px-5 py-2 text-white disabled:bg-gray-400 disabled:text-gray-300',
@@ -140,9 +136,9 @@ styled('div', {
 
 // ============================================
 
-describe('createStyledPropsHandler', () => {
+describe('variantProps', () => {
   it('should pass-through all unrelated props', () => {
-    const propsHandler = createStyledPropsHandler({
+    const propsHandler = variantProps({
       base: 'px-5 py-2 text-white disabled:bg-gray-400',
       variants: {
         color: {
