@@ -1,6 +1,6 @@
 {
   "name": "react-tailwind-variants",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React Stitches-like variants API for tailwindcss classes",
   "private": false,
   "main": "./dist/index.js",
