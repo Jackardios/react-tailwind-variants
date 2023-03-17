@@ -1,5 +1,6 @@
 .changeset
 src
+test
 pnpm-lock.yaml
 package-lock.json
 tsconfig.json
