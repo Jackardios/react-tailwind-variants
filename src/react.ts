@@ -55,6 +55,15 @@ export function createStyledPropsHandler<
   };
 }
 
+type SlottableProps<
+  T extends ElementType,
+  P
+> = T extends keyof JSX.IntrinsicElements
+  ? Omit<P, 'asChild'> & {
+      asChild?: boolean;
+    }
+  : P;
+
 export function styled<
   T extends ElementType,
   C extends VariantsConfig<V>,
@@ -68,23 +77,27 @@ export function styled<
   const propsHandler = createStyledPropsHandler(preparedConfig);
 
   type ConfigVariants = VariantOptions<C>;
-  type Props = Omit<
-    ConfigVariants & Omit<ComponentPropsWithoutRef<T>, keyof ConfigVariants>,
-    'asChild'
-  > & {
-    asChild?: boolean;
-  };
+  type Props = SlottableProps<
+    T,
+    ConfigVariants & Omit<ComponentPropsWithoutRef<T>, keyof ConfigVariants>
+  >;
 
-  const component = forwardRef<ComponentRef<T>, Props>(
-    ({ asChild, ...props }, ref) => {
-      const type = asChild ? Slot : baseType;
+  const component = forwardRef<ComponentRef<T>, Props>((props, ref) => {
+    // only JSX.IntrinsicElements can be slottable
+    if (typeof baseType === 'string' && 'asChild' in props && props.asChild) {
+      const { asChild, ...otherProps } = props;
 
-      return createElement(type, {
-        ...propsHandler(props as any),
+      return createElement(Slot, {
+        ...propsHandler(otherProps as any),
         ref: ref as any,
       });
     }
-  );
+
+    return createElement(baseType, {
+      ...propsHandler(props as any),
+      ref: ref as any,
+    });
+  });
 
   return Object.assign(component, {
     [StyledComponentConfigKey]: preparedConfig,
