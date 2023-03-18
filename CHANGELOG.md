@@ -1,5 +1,11 @@
 # react-tailwind-variants
 
+## 0.1.2
+
+### Patch Changes
+
+- fa364d4: update README.md
+
 ## 0.1.1
 
 ### Patch Changes
