@@ -6,6 +6,8 @@
 
 `Stitches.js`-like API for creating composable components. You can define a single variant, multiple variants, and even compound variants which allow you to define classes based on a combination of variants.
 
+This is a modified version of the [`classname-variants`](https://github.com/fgnass/classname-variants/)
+
 ## Features
 
 - 📦 Lightweight
