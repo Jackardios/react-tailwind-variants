@@ -1,5 +1,12 @@
 # react-tailwind-variants
 
+## 0.1.3
+
+### Patch Changes
+
+- 0c1a5c5: Add vite.config.ts and .prettierrc files to npmignore
+- 78d9d8c: Fix package homepage and bugs url
+
 ## 0.1.2
 
 ### Patch Changes
