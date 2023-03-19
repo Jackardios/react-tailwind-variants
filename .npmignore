@@ -7,3 +7,5 @@ tsconfig.json
 .gitignore
 .github
 .changeset
+vite.config.ts
+.prettierrc
