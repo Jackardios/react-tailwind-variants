@@ -39,9 +39,9 @@
     "url": "git+https://github.com/jackardios/react-tailwind-variants.git"
   },
   "bugs": {
-    "url": "https://github.com/jackardios/react-classname-variants/issues"
+    "url": "https://github.com/jackardios/react-tailwind-variants/issues"
   },
-  "homepage": "https://github.com/jackardios/react-classname-variants#readme",
+  "homepage": "https://github.com/jackardios/react-tailwind-variants#readme",
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
     "@testing-library/jest-dom": "^5.16.5",
