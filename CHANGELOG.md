@@ -1,5 +1,12 @@
 # react-tailwind-variants
 
+## 1.0.0
+
+### Major Changes
+
+- 9c6f874: BREAKING CHANGE: set type `VariantsConfig` for `config` argument in `styled` function + fix typings
+- 8dda492: BREAKING CHANGE: set `variants` in `VariantsConfig` optional + improve type-hints
+
 ## 0.1.3
 
 ### Patch Changes
