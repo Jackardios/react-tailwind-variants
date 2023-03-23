@@ -5,10 +5,10 @@
 
 import { cx } from './cx';
 
-type RequiredKeys<T> = {
+type PickRequiredKeys<T> = {
   [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
 }[keyof T];
-type OmitByType<T, Value> = {
+type OmitByValue<T, Value> = {
   [P in keyof T as T[P] extends Value ? never : P]: T[P];
 };
 type StringToBoolean<T> = T extends 'true' | 'false' ? boolean : T;
@@ -75,7 +75,7 @@ type DefaultVariants<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = NonNullable<C['variants']>
 > = {
-  [Variant in keyof V as Variant extends keyof OmitByType<
+  [Variant in keyof V as Variant extends keyof OmitByValue<
     C['defaultVariants'],
     undefined
   >
@@ -97,10 +97,12 @@ type OptionalVariantNames<
 export type VariantOptions<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = NonNullable<C['variants']>
-> = Required<Omit<Variants<V>, OptionalVariantNames<C, V>>> &
-  Partial<Pick<Variants<V>, OptionalVariantNames<C, V>>>;
+> = keyof V extends never
+  ? {}
+  : Required<Omit<Variants<V>, OptionalVariantNames<C, V>>> &
+      Partial<Pick<Variants<V>, OptionalVariantNames<C, V>>>;
 
-type VariantsHandlerFn<P> = RequiredKeys<P> extends never
+type VariantsHandlerFn<P> = PickRequiredKeys<P> extends never
   ? (props?: P) => string
   : (props: P) => string;
 

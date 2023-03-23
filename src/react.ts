@@ -18,17 +18,13 @@ import {
 
 const StyledComponentConfigKey = '$$tailwindVariantsConfig';
 
-type StyledComponentConfigProp<
-  C extends VariantsConfig<V>,
-  V extends VariantsSchema = NonNullable<C['variants']>
-> = {
+interface StyledComponentConfigProp<C extends VariantsConfig<any>> {
   readonly [StyledComponentConfigKey]: C;
-};
+}
 
 export type StyledComponent<
   ForwardRefComponent extends ForwardRefExoticComponent<any>,
-  C extends VariantsConfig<V>,
-  V extends VariantsSchema = NonNullable<C['variants']>
+  C extends VariantsConfig<any>
 > = ForwardRefComponent & StyledComponentConfigProp<C>;
 
 export function variantProps<
@@ -37,11 +33,11 @@ export function variantProps<
 >(config: C) {
   const variantsHandler = variants(config);
 
-  return function <
-    P extends VariantOptions<typeof config> & {
-      className?: string;
-    }
-  >(props: P) {
+  type Props = VariantOptions<C> & {
+    className?: string;
+  };
+
+  return function <P extends Props>(props: P) {
     const result: any = {};
 
     // Pass-through all unrelated props
@@ -56,9 +52,9 @@ export function variantProps<
     }
 
     // Add the optionally passed className prop for chaining
-    result.className = variantsHandler(props as any);
+    result.className = variantsHandler(props);
 
-    return result as { className: string } & Omit<typeof props, keyof V>;
+    return result as { className: string } & Omit<P, keyof Props>;
   };
 }
 
