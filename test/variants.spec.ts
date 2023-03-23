@@ -7,41 +7,43 @@ type VariantParameters<Component extends (...args: any) => any> =
 describe('variants', () => {
   describe('without base', () => {
     describe('without variants', () => {
-      test('empty', () => {
-        // @ts-expect-error
-        expect(() => variants()).toThrowError(
-          'variants configuration must not be empty'
+      test('with compoundVariants', () => {
+        const withoutBaseWithCompoundVariants = variants({
+          // @ts-expect-error
+          compoundVariants: [],
+        });
+        expect(
+          withoutBaseWithCompoundVariants({ className: 'bg-blue-500 foobar' })
+        ).toEqual('bg-blue-500 foobar');
+
+        expect(withoutBaseWithCompoundVariants({ className: '' })).toEqual('');
+        expect(withoutBaseWithCompoundVariants({})).toEqual('');
+        expect(withoutBaseWithCompoundVariants()).toEqual('');
+      });
+
+      test('with defaultVariants', () => {
+        const withoutBaseWithDefaultVariants = variants({
+          // @ts-expect-error
+          defaultVariants: {},
+        });
+        expect(
+          withoutBaseWithDefaultVariants({ className: 'bg-blue-500 foobar' })
+        ).toEqual('bg-blue-500 foobar');
+
+        expect(withoutBaseWithDefaultVariants({ className: '' })).toEqual('');
+        expect(withoutBaseWithDefaultVariants({})).toEqual('');
+        expect(withoutBaseWithDefaultVariants()).toEqual('');
+      });
+
+      test('without anything', () => {
+        const withoutAnything = variants({});
+        expect(withoutAnything({ className: 'bg-blue-500 foobar' })).toEqual(
+          'bg-blue-500 foobar'
         );
 
-        // @ts-expect-error
-        expect(() => variants(null)).toThrowError(
-          'variants configuration must not be empty'
-        );
-
-        // @ts-expect-error
-        expect(() => variants(undefined)).toThrowError(
-          'variants configuration must not be empty'
-        );
-
-        // @ts-expect-error
-        expect(() => variants({})).toThrowError(
-          'variants configuration must not be empty'
-        );
-
-        // @ts-expect-error
-        expect(() => variants({ variants: undefined })).toThrowError(
-          'variants configuration must not be empty'
-        );
-
-        // @ts-expect-error
-        expect(() => variants({ variants: null })).toThrowError(
-          'variants configuration must not be empty'
-        );
-
-        // @ts-expect-error
-        expect(() => variants({ base: 'foo bar' })).toThrowError(
-          'variants configuration must not be empty'
-        );
+        expect(withoutAnything({ className: '' })).toEqual('');
+        expect(withoutAnything({})).toEqual('');
+        expect(withoutAnything()).toEqual('');
       });
     });
 
@@ -490,6 +492,63 @@ describe('variants', () => {
   // ====================================
 
   describe('with base', () => {
+    describe('without variants', () => {
+      test('with compoundVariants', () => {
+        const withoutBaseWithCompoundVariants = variants({
+          base: 'text-white bg-black',
+          // @ts-expect-error
+          compoundVariants: [],
+        });
+        expect(
+          withoutBaseWithCompoundVariants({ className: 'bg-blue-500 foobar' })
+        ).toEqual('text-white bg-blue-500 foobar');
+
+        expect(withoutBaseWithCompoundVariants({ className: '' })).toEqual(
+          'text-white bg-black'
+        );
+        expect(withoutBaseWithCompoundVariants({})).toEqual(
+          'text-white bg-black'
+        );
+        expect(withoutBaseWithCompoundVariants()).toEqual(
+          'text-white bg-black'
+        );
+      });
+
+      test('with defaultVariants', () => {
+        const withoutBaseWithDefaultVariants = variants({
+          base: 'text-white bg-black',
+          // @ts-expect-error
+          defaultVariants: {},
+        });
+        expect(
+          withoutBaseWithDefaultVariants({ className: 'bg-blue-500 foobar' })
+        ).toEqual('text-white bg-blue-500 foobar');
+
+        expect(withoutBaseWithDefaultVariants({ className: '' })).toEqual(
+          'text-white bg-black'
+        );
+        expect(withoutBaseWithDefaultVariants({})).toEqual(
+          'text-white bg-black'
+        );
+        expect(withoutBaseWithDefaultVariants()).toEqual('text-white bg-black');
+      });
+
+      test('only with base', () => {
+        const withoutAnything = variants({
+          base: 'text-white bg-black',
+        });
+        expect(withoutAnything({ className: 'bg-blue-500 foobar' })).toEqual(
+          'text-white bg-blue-500 foobar'
+        );
+
+        expect(withoutAnything({ className: '' })).toEqual(
+          'text-white bg-black'
+        );
+        expect(withoutAnything({})).toEqual('text-white bg-black');
+        expect(withoutAnything()).toEqual('text-white bg-black');
+      });
+    });
+
     describe('without defaults', () => {
       const buttonWithBaseWithoutDefaultsWithClassNameString = variants({
         base: 'text-center bg-purple-600 text-purple-100',

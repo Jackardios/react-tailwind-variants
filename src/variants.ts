@@ -5,10 +5,13 @@
 
 import { cx } from './cx';
 
-type StringToBoolean<T> = T extends 'true' | 'false' ? boolean : T;
 type RequiredKeys<T> = {
   [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
 }[keyof T];
+type OmitByType<T, Value> = {
+  [P in keyof T as T[P] extends Value ? never : P]: T[P];
+};
+type StringToBoolean<T> = T extends 'true' | 'false' ? boolean : T;
 
 export type ClassNameValue = string | null | undefined | ClassNameValue[];
 
@@ -28,14 +31,11 @@ export type ClassNameValue = string | null | undefined | ClassNameValue[];
  */
 export type VariantsSchema = Record<string, Record<string, ClassNameValue>>;
 
-/**
- * Configuration including defaults and compound variants.
- */
-export interface VariantsConfig<V extends VariantsSchema = {}> {
+export interface VariantsConfig<V extends VariantsSchema> {
   base?: ClassNameValue;
-  variants: V;
-  compoundVariants?: CompoundVariant<V>[];
-  defaultVariants?: Partial<Variants<V>>;
+  variants?: V;
+  defaultVariants?: keyof V extends never ? never : Partial<Variants<V>>;
+  compoundVariants?: keyof V extends never ? never : CompoundVariant<V>[];
 }
 
 /**
@@ -59,7 +59,10 @@ type VariantsMulti<V extends VariantsSchema> = {
 /**
  * Only the boolean variants, i.e. ones that have "true" or "false" as options.
  */
-type BooleanVariants<V extends VariantsSchema> = {
+type BooleanVariants<
+  C extends VariantsConfig<V>,
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = {
   [Variant in keyof V as V[Variant] extends { true: any } | { false: any }
     ? Variant
     : never]: V[Variant];
@@ -70,11 +73,14 @@ type BooleanVariants<V extends VariantsSchema> = {
  */
 type DefaultVariants<
   C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
+  V extends VariantsSchema = NonNullable<C['variants']>
 > = {
-  [Variant in keyof V as Variant extends keyof C['defaultVariants']
+  [Variant in keyof V as Variant extends keyof OmitByType<
+    C['defaultVariants'],
+    undefined
+  >
     ? Variant
-    : never]: C['variants'][Variant];
+    : never]: V[Variant];
 };
 
 /**
@@ -82,79 +88,32 @@ type DefaultVariants<
  */
 type OptionalVariantNames<
   C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
-> = keyof BooleanVariants<V> | keyof DefaultVariants<C>;
-
-/**
- * Possible options for all the optional variants.
- *
- * @example
- * {
- *   color?: "white" | "green",
- *   rounded?: boolean | undefined
- * }
- */
-type OptionalOptions<
-  C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
-> = {
-  [Variant in keyof V as Variant extends OptionalVariantNames<C>
-    ? Variant
-    : never]?: Variants<V>[Variant];
-};
-
-/**
- * Possible options for all required variants.
- *
- * @example {
- *   size: "small" | "large"
- * }
- */
-type RequiredOptions<
-  C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
-> = {
-  [K in keyof V as K extends OptionalVariantNames<C>
-    ? never
-    : K]: Variants<V>[K];
-};
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = keyof BooleanVariants<C, V> | keyof DefaultVariants<C, V>;
 
 /**
  * Extracts the possible options.
  */
 export type VariantOptions<
   C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
-> = RequiredOptions<C> & OptionalOptions<C>;
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = Required<Omit<Variants<V>, OptionalVariantNames<C, V>>> &
+  Partial<Pick<Variants<V>, OptionalVariantNames<C, V>>>;
 
-/**
- * Without this conversion step, defaultVariants and compoundVariants will
- * allow extra keys, i.e. non-existent variants.
- * See https://github.com/sindresorhus/type-fest/blob/main/source/simplify.d.ts
- */
-export type Simplify<T> = {
-  [K in keyof T]: T[K];
-};
-
-type VariantsHandlerFn<P> = RequiredKeys<Simplify<P>> extends never
+type VariantsHandlerFn<P> = RequiredKeys<P> extends never
   ? (props?: P) => string
   : (props: P) => string;
 
 export function variants<
   C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
->(
-  config: Simplify<C>
-): VariantsHandlerFn<
-  VariantOptions<C> & {
-    className?: ClassNameValue;
-  }
-> {
-  if (!config || !config.variants) {
-    throw new Error('variants configuration must not be empty');
-  }
-
+  V extends VariantsSchema = NonNullable<C['variants']>
+>(config: C) {
   const { base, variants, compoundVariants, defaultVariants } = config;
+
+  if (!('variants' in config) || !config.variants) {
+    return (props?: { className?: ClassNameValue }) =>
+      cx(base, props?.className);
+  }
 
   function isBooleanVariant(name: keyof V) {
     const variant = variants?.[name];
@@ -194,5 +153,9 @@ export function variants<
     }
 
     return cx(result);
-  };
+  } as VariantsHandlerFn<
+    VariantOptions<C> & {
+      className?: ClassNameValue;
+    }
+  >;
 }
