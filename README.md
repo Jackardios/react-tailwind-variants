@@ -28,7 +28,6 @@ npm install tailwind-merge react-tailwind-variants
 - [Boolean variants](#boolean-variants)
 - [Compound variants](#compound-variants)
 - [Default variants](#default-variants)
-- [Components without variants](#components-without-variants)
 - [Polymorphic components](#polymorphic-components)
 - [Composing components](#composing-components)
 - [Utilities](#utilities)
@@ -212,18 +211,6 @@ const Button = styled('button', {
     color: 'neutral',
   },
 });
-```
-
----
-
-### Components without variants
-
-If the component does not have any options, you can specify a string with classes instead of a configuration object
-
-```tsx
-import { styled } from 'react-tailwind-variants';
-
-const Button = styled('button', 'bg-blue-500 text-white px-4 py-2');
 ```
 
 ---

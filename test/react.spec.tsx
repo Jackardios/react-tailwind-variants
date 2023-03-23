@@ -31,10 +31,9 @@ const StyledComponent = styled('button', {
 
 // ============================================
 
-const StyledComponentWithStringConfig = styled(
-  'div',
-  'bg-white p-4 border-2 rounded-lg'
-);
+const StyledComponentWithoutVariants = styled('div', {
+  base: 'bg-white p-4 border-2 rounded-lg',
+});
 
 // ============================================
 
@@ -123,11 +122,35 @@ styled('div', {
   },
   compoundVariants: [
     {
-      //@ts-expect-error
-      variants: { color: 'foobar' },
+      variants: {
+        // @ts-expect-error
+        color: 'foobar',
+      },
       className: '',
     },
   ],
+});
+
+styled('div', {
+  variants: {
+    color: {
+      neutral: 'grey',
+      accent: 'hotpink',
+    },
+  },
+  defaultVariants: {
+    // @ts-expect-error
+    color: 'foobar',
+  },
+});
+
+styled('div', {
+  variants: {
+    color: {
+      neutral: 'grey',
+      accent: 'hotpink',
+    },
+  },
   defaultVariants: {
     // @ts-expect-error
     outlined: true,
@@ -235,10 +258,9 @@ describe('extractVariantsConfig', () => {
     });
   });
 
-  it('extracts variants config from styled component with string configuration', () => {
-    expect(extractVariantsConfig(StyledComponentWithStringConfig)).toEqual({
+  it('extracts variants config from styled component without variants', () => {
+    expect(extractVariantsConfig(StyledComponentWithoutVariants)).toEqual({
       base: 'bg-white p-4 border-2 rounded-lg',
-      variants: {},
     });
   });
 });
@@ -323,12 +345,10 @@ describe('styled', () => {
     });
   });
 
-  describe('styled component with string configuration', () => {
+  describe('styled component without variants', () => {
     test('render without props', () => {
       render(
-        <StyledComponentWithStringConfig>
-          Button
-        </StyledComponentWithStringConfig>
+        <StyledComponentWithoutVariants>Button</StyledComponentWithoutVariants>
       );
 
       expect(screen.getByText('Button')).toMatchInlineSnapshot(`
@@ -342,13 +362,12 @@ describe('styled', () => {
 
     test('render with unrelated props', () => {
       render(
-        <StyledComponentWithStringConfig
-          color="neutral"
+        <StyledComponentWithoutVariants
           data-foo="bar"
           className="py-6 bg-gray-700"
         >
           Button
-        </StyledComponentWithStringConfig>
+        </StyledComponentWithoutVariants>
       );
 
       const button = screen.getByText('Button');
@@ -356,7 +375,6 @@ describe('styled', () => {
       expect(button).toMatchInlineSnapshot(`
         <div
           class="p-4 border-2 rounded-lg py-6 bg-gray-700"
-          color="neutral"
           data-foo="bar"
         >
           Button
@@ -366,16 +384,15 @@ describe('styled', () => {
 
     test('render as child with unrelated props', () => {
       render(
-        <StyledComponentWithStringConfig
+        <StyledComponentWithoutVariants
           asChild
-          color="neutral"
           data-foo="bar"
           className="py-6 bg-gray-700"
         >
           <a href="/some/link" className="py-1 text-gray-200">
             Link
           </a>
-        </StyledComponentWithStringConfig>
+        </StyledComponentWithoutVariants>
       );
 
       const link = screen.getByText('Link');
@@ -383,7 +400,6 @@ describe('styled', () => {
       expect(link).toMatchInlineSnapshot(`
         <a
           class="p-4 border-2 rounded-lg py-6 bg-gray-700 py-1 text-gray-200"
-          color="neutral"
           data-foo="bar"
           href="/some/link"
         >

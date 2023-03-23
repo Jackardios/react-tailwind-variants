@@ -14,28 +14,31 @@ import {
   type VariantsSchema,
   type VariantOptions,
   variants,
-  Simplify,
 } from './variants';
 
 const StyledComponentConfigKey = '$$tailwindVariantsConfig';
 
-type StyledComponentConfigProp<Config extends VariantsConfig> = {
-  readonly [StyledComponentConfigKey]: Config;
+type StyledComponentConfigProp<
+  C extends VariantsConfig<V>,
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = {
+  readonly [StyledComponentConfigKey]: C;
 };
 
 export type StyledComponent<
   ForwardRefComponent extends ForwardRefExoticComponent<any>,
-  Config extends VariantsConfig
-> = ForwardRefComponent & StyledComponentConfigProp<Config>;
+  C extends VariantsConfig<V>,
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = ForwardRefComponent & StyledComponentConfigProp<C>;
 
 export function variantProps<
   C extends VariantsConfig<V>,
-  V extends VariantsSchema = C['variants']
+  V extends VariantsSchema = NonNullable<C['variants']>
 >(config: C) {
   const variantsHandler = variants(config);
 
   return function <
-    P extends VariantOptions<C> & {
+    P extends VariantOptions<typeof config> & {
       className?: string;
     }
   >(props: P) {
@@ -43,7 +46,11 @@ export function variantProps<
 
     // Pass-through all unrelated props
     for (let prop in props) {
-      if (!config.variants || !(prop in config.variants)) {
+      if (
+        !('variants' in config) ||
+        !config.variants ||
+        !(prop in config.variants)
+      ) {
         result[prop] = props[prop];
       }
     }
@@ -67,14 +74,9 @@ type SlottableProps<
 export function styled<
   T extends ElementType,
   C extends VariantsConfig<V>,
-  V extends VariantsSchema = C extends VariantsConfig ? C['variants'] : {}
->(baseType: T, config: string | Simplify<C>) {
-  const preparedConfig =
-    typeof config === 'string'
-      ? ({ base: config, variants: {} } as Simplify<C>)
-      : config;
-
-  const propsHandler = variantProps(preparedConfig);
+  V extends VariantsSchema = NonNullable<C['variants']>
+>(baseType: T, config: C) {
+  const propsHandler = variantProps(config);
 
   type ConfigVariants = VariantOptions<C>;
   type Props = SlottableProps<
@@ -100,23 +102,25 @@ export function styled<
   });
 
   return Object.assign(component, {
-    [StyledComponentConfigKey]: preparedConfig,
-  }) as StyledComponent<typeof component, typeof preparedConfig>;
+    [StyledComponentConfigKey]: config,
+  }) as StyledComponent<typeof component, typeof config>;
 }
 
 export type VariantsConfigOf<
-  Component extends StyledComponent<ForwardRefExoticComponent<any>, Config>,
-  Config extends VariantsConfig = Component[typeof StyledComponentConfigKey]
-> = Config;
+  Component extends StyledComponent<ForwardRefExoticComponent<any>, C>,
+  C extends VariantsConfig<V> = Component[typeof StyledComponentConfigKey],
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = C;
 
 export type VariantPropsOf<
-  Component extends StyledComponent<ForwardRefExoticComponent<any>, Config>,
-  Config extends VariantsConfig = Component[typeof StyledComponentConfigKey]
-> = VariantOptions<Config>;
+  Component extends StyledComponent<ForwardRefExoticComponent<any>, C>,
+  C extends VariantsConfig<V> = Component[typeof StyledComponentConfigKey],
+  V extends VariantsSchema = NonNullable<C['variants']>
+> = VariantOptions<C>;
 
 export function extractVariantsConfig<
-  Component extends ForwardRefExoticComponent<any>,
-  Config extends VariantsConfig
->(styledComponent: StyledComponent<Component, Config>) {
+  C extends VariantsConfig<V>,
+  V extends VariantsSchema = NonNullable<C['variants']>
+>(styledComponent: StyledComponent<ForwardRefExoticComponent<any>, C>) {
   return styledComponent[StyledComponentConfigKey];
 }
