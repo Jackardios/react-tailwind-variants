@@ -1,5 +1,11 @@
 # react-tailwind-variants
 
+## 1.0.1
+
+### Patch Changes
+
+- ac2ede4: Fix typings
+
 ## 1.0.0
 
 ### Major Changes
