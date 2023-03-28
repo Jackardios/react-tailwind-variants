@@ -1,5 +1,11 @@
 # react-tailwind-variants
 
+## 1.0.2
+
+### Patch Changes
+
+- d57c9b7: typescript should throw an error when passed compoundVariants or defaultVariants with non-existing variants
+
 ## 1.0.1
 
 ### Patch Changes
