@@ -153,6 +153,19 @@ styled('div', {
   },
   defaultVariants: {
     // @ts-expect-error
+    test: 'invalid',
+  },
+});
+
+styled('div', {
+  variants: {
+    color: {
+      neutral: 'grey',
+      accent: 'hotpink',
+    },
+  },
+  defaultVariants: {
+    // @ts-expect-error
     outlined: true,
   },
 });

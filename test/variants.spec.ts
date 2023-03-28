@@ -9,8 +9,13 @@ describe('variants', () => {
     describe('without variants', () => {
       test('with compoundVariants', () => {
         const withoutBaseWithCompoundVariants = variants({
-          // @ts-expect-error
-          compoundVariants: [],
+          compoundVariants: [
+            // @ts-expect-error
+            {
+              variants: { color: 'primary' },
+              className: 'text-primary-500',
+            },
+          ],
         });
         expect(
           withoutBaseWithCompoundVariants({ className: 'bg-blue-500 foobar' })
@@ -23,8 +28,10 @@ describe('variants', () => {
 
       test('with defaultVariants', () => {
         const withoutBaseWithDefaultVariants = variants({
-          // @ts-expect-error
-          defaultVariants: {},
+          defaultVariants: {
+            // @ts-expect-error
+            color: 'primary',
+          },
         });
         expect(
           withoutBaseWithDefaultVariants({ className: 'bg-blue-500 foobar' })
@@ -496,8 +503,13 @@ describe('variants', () => {
       test('with compoundVariants', () => {
         const withoutBaseWithCompoundVariants = variants({
           base: 'text-white bg-black',
-          // @ts-expect-error
-          compoundVariants: [],
+          compoundVariants: [
+            // @ts-expect-error
+            {
+              variants: { color: 'primary' },
+              className: 'text-primary-500',
+            },
+          ],
         });
         expect(
           withoutBaseWithCompoundVariants({ className: 'bg-blue-500 foobar' })
@@ -517,8 +529,10 @@ describe('variants', () => {
       test('with defaultVariants', () => {
         const withoutBaseWithDefaultVariants = variants({
           base: 'text-white bg-black',
-          // @ts-expect-error
-          defaultVariants: {},
+          defaultVariants: {
+            // @ts-expect-error
+            color: 'primary',
+          },
         });
         expect(
           withoutBaseWithDefaultVariants({ className: 'bg-blue-500 foobar' })

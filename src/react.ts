@@ -14,6 +14,7 @@ import {
   type VariantsSchema,
   type VariantOptions,
   variants,
+  Simplify,
 } from './variants';
 
 const StyledComponentConfigKey = '$$tailwindVariantsConfig';
@@ -30,7 +31,7 @@ export type StyledComponent<
 export function variantProps<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = NonNullable<C['variants']>
->(config: C) {
+>(config: Simplify<C>) {
   const variantsHandler = variants(config);
 
   type Props = VariantOptions<C> & {
@@ -45,7 +46,7 @@ export function variantProps<
       if (
         !('variants' in config) ||
         !config.variants ||
-        !(prop in config.variants)
+        !(prop in (config.variants as V))
       ) {
         result[prop] = props[prop];
       }
@@ -71,7 +72,7 @@ export function styled<
   T extends ElementType,
   C extends VariantsConfig<V>,
   V extends VariantsSchema = NonNullable<C['variants']>
->(baseType: T, config: C) {
+>(baseType: T, config: Simplify<C>) {
   const propsHandler = variantProps(config);
 
   type ConfigVariants = VariantOptions<C>;

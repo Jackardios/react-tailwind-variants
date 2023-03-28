@@ -12,6 +12,7 @@ type OmitByValue<T, Value> = {
   [P in keyof T as T[P] extends Value ? never : P]: T[P];
 };
 type StringToBoolean<T> = T extends 'true' | 'false' ? boolean : T;
+export type Simplify<T> = { [KeyType in keyof T]: T[KeyType] };
 
 export type ClassNameValue = string | null | undefined | ClassNameValue[];
 
@@ -31,12 +32,14 @@ export type ClassNameValue = string | null | undefined | ClassNameValue[];
  */
 export type VariantsSchema = Record<string, Record<string, ClassNameValue>>;
 
-export interface VariantsConfig<V extends VariantsSchema> {
+export type VariantsConfig<V extends VariantsSchema> = {
   base?: ClassNameValue;
   variants?: V;
-  defaultVariants?: keyof V extends never ? never : Partial<Variants<V>>;
-  compoundVariants?: keyof V extends never ? never : CompoundVariant<V>[];
-}
+  defaultVariants?: keyof V extends never
+    ? Record<string, never>
+    : Partial<Variants<V>>;
+  compoundVariants?: keyof V extends never ? never[] : CompoundVariant<V>[];
+};
 
 /**
  * Rules for class names that are applied for certain variant combinations.
@@ -109,7 +112,7 @@ type VariantsHandlerFn<P> = PickRequiredKeys<P> extends never
 export function variants<
   C extends VariantsConfig<V>,
   V extends VariantsSchema = NonNullable<C['variants']>
->(config: C) {
+>(config: Simplify<C>) {
   const { base, variants, compoundVariants, defaultVariants } = config;
 
   if (!('variants' in config) || !config.variants) {
@@ -118,7 +121,7 @@ export function variants<
   }
 
   function isBooleanVariant(name: keyof V) {
-    const variant = variants?.[name];
+    const variant = (variants as V)?.[name];
     return variant && ('false' in variant || 'true' in variant);
   }
 
