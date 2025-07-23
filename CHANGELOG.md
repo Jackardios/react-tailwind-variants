@@ -1,5 +1,11 @@
 # react-tailwind-variants
 
+## 1.0.3
+
+### Patch Changes
+
+- 32ce10a: allow react v19 and tailwind-merge v2 and v3
+
 ## 1.0.2
 
 ### Patch Changes
