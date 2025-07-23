@@ -1,4 +1,5 @@
 import {
+  type JSX,
   type ComponentPropsWithoutRef,
   type ComponentRef,
   type ElementType,
